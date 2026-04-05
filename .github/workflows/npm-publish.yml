@@ -52,7 +52,9 @@ jobs:
           git config user.name "Pratiyush"
           git config user.email "pratiyush1@gmail.com"
           git add package.json package-lock.json
-          git commit -m "chore: release v${{ steps.version.outputs.NEXT }}"
+          git commit -m "chore: release v${{ steps.version.outputs.NEXT }}" || true
+          git tag -d "v${{ steps.version.outputs.NEXT }}" 2>/dev/null || true
+          git push origin --delete "v${{ steps.version.outputs.NEXT }}" 2>/dev/null || true
           git tag "v${{ steps.version.outputs.NEXT }}"
           git push origin master --tags
 
