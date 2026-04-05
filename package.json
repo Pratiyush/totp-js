@@ -1,0 +1,67 @@
+{
+  "name": "totp-js",
+  "version": "1.0.0",
+  "description": "Security-hardened TOTP/2FA library for JavaScript and TypeScript. RFC 6238 compliant with replay protection, constant-time verification, and zero runtime dependencies.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src/ tests/",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "totp",
+    "hotp",
+    "otp",
+    "2fa",
+    "two-factor",
+    "authentication",
+    "mfa",
+    "multi-factor",
+    "rfc6238",
+    "rfc4226",
+    "security",
+    "google-authenticator",
+    "time-based-one-time-password"
+  ],
+  "author": "Pratiyush Kumar Singh <pratiyush1@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pratiyush/totp-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Pratiyush/totp-js/issues"
+  },
+  "homepage": "https://pratiyush.github.io/totp-js/",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "eslint": "^9.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  }
+}
