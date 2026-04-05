@@ -1,60 +1,84 @@
 name: Publish to npm
 
 on:
-  push:
-    tags: ['v*']
+  pull_request:
+    branches: [release]
+    types: [closed]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   publish:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: release
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
+
       - run: npm ci
       - run: npm run test:coverage
       - run: npm run build
 
-      - name: Extract version from tag
+      - name: Get current version
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: next
+        run: |
+          CURRENT="${{ steps.version.outputs.VERSION }}"
+          MAJOR=$(echo $CURRENT | cut -d. -f1)
+          MINOR=$(echo $CURRENT | cut -d. -f2)
+          PATCH=$(echo $CURRENT | cut -d. -f3)
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}"
+          echo "VERSION=${NEXT_VERSION}" >> $GITHUB_OUTPUT
+          echo "Publishing version: ${NEXT_VERSION}"
 
       - name: Set package version
-        run: npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
+        run: npm version ${{ steps.next.outputs.VERSION }} --no-git-tag-version
 
       - name: Publish to npm
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Create tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.next.outputs.VERSION }}"
+          git config user.name "Pratiyush"
+          git config user.email "pratiyush1@gmail.com"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${VERSION}" || true
+          git tag "v${VERSION}"
+          git push origin release --tags
+          git push origin release:master || true
+
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}
-          name: v${{ steps.version.outputs.VERSION }}
+          tag: v${{ steps.next.outputs.VERSION }}
+          name: v${{ steps.next.outputs.VERSION }}
           body: |
             ## Install
 
             ```bash
-            npm install totp-js@${{ steps.version.outputs.VERSION }}
+            npm install totp-js@${{ steps.next.outputs.VERSION }}
             ```
 
             See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: false
-          prerelease: false
-
-      - name: Push version bump to master
-        run: |
-          git config user.name "Pratiyush"
-          git config user.email "pratiyush1@gmail.com"
-          git add package.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }}" || true
-          git push origin HEAD:master || true
+          prerelease: ${{ startsWith(steps.next.outputs.VERSION, '0.') }}
