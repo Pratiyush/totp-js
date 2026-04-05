@@ -1,6 +1,8 @@
 name: Publish to npm
 
 on:
+  push:
+    tags: ['v*']
   pull_request:
     branches: [release]
     types: [closed]
@@ -10,14 +12,13 @@ env:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
+    if: github.event_name == 'push' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: release
           fetch-depth: 0
 
       - uses: actions/setup-node@v4
@@ -30,21 +31,22 @@ jobs:
       - run: npm run test:coverage
       - run: npm run build
 
-      - name: Get current version
-        id: version
-        run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-
-      - name: Calculate next version
+      - name: Determine version
         id: next
         run: |
-          CURRENT="${{ steps.version.outputs.VERSION }}"
-          MAJOR=$(echo $CURRENT | cut -d. -f1)
-          MINOR=$(echo $CURRENT | cut -d. -f2)
-          PATCH=$(echo $CURRENT | cut -d. -f3)
-          NEXT_PATCH=$((PATCH + 1))
-          NEXT_VERSION="${MAJOR}.${MINOR}.${NEXT_PATCH}"
-          echo "VERSION=${NEXT_VERSION}" >> $GITHUB_OUTPUT
-          echo "Publishing version: ${NEXT_VERSION}"
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref_type }}" == "tag" ]]; then
+            # Tag push: extract version from tag (v0.9.0 → 0.9.0)
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            # PR merge: auto-increment patch
+            CURRENT=$(node -p "require('./package.json').version")
+            MAJOR=$(echo $CURRENT | cut -d. -f1)
+            MINOR=$(echo $CURRENT | cut -d. -f2)
+            PATCH=$(echo $CURRENT | cut -d. -f3)
+            VERSION="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Publishing version: ${VERSION}"
 
       - name: Set package version
         run: npm version ${{ steps.next.outputs.VERSION }} --no-git-tag-version
