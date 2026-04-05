@@ -353,6 +353,47 @@
         footer a:hover { text-decoration: underline; }
         .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
 
+        /* ===== Demo ===== */
+        .demo-container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .demo-inputs { display: flex; flex-direction: column; gap: 1rem; }
+        .demo-field { display: flex; flex-direction: column; gap: 0.4rem; }
+        .demo-field label { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .demo-field input, .demo-field select {
+            background: var(--code-bg); border: 1px solid var(--border); color: var(--text);
+            padding: 0.65rem 0.85rem; border-radius: 6px; font-size: 0.95rem; font-family: 'SF Mono', 'Fira Code', monospace;
+            outline: none; transition: border-color 0.2s;
+        }
+        .demo-field input:focus, .demo-field select:focus { border-color: var(--accent); }
+        .demo-secret-row { display: flex; gap: 0.5rem; }
+        .demo-secret-row input { flex: 1; }
+        .demo-dropdowns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+        .demo-btn {
+            background: var(--accent); color: #fff; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+            transition: background 0.2s;
+        }
+        .demo-btn:hover { background: var(--accent-hover); }
+        .demo-btn-sm { padding: 0.5rem 0.9rem; font-size: 0.82rem; white-space: nowrap; }
+        .demo-btn-outline { background: transparent; border: 1px solid var(--accent); color: var(--accent); }
+        .demo-btn-outline:hover { background: var(--accent); color: #fff; }
+        .demo-output { text-align: center; padding: 1.5rem 0 0.5rem; }
+        .demo-code-display {
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 3.5rem; font-weight: 700;
+            letter-spacing: 0.3em; color: var(--accent); padding: 0.5rem 0;
+            user-select: all; text-align: center;
+        }
+        .demo-timer-row { display: flex; align-items: center; gap: 1rem; margin: 0.75rem auto; max-width: 400px; }
+        .demo-timer-bar-bg { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .demo-timer-bar { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s linear; width: 100%; }
+        .demo-timer-bar.warning { background: #F59E0B; }
+        .demo-timer-bar.critical { background: #EF4444; }
+        .demo-timer-text { font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; min-width: 90px; text-align: right; }
+        .demo-actions { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem; }
+        .demo-verify-panel { border-top: 1px solid var(--border); padding-top: 1rem; }
+        .demo-verify-result { margin-top: 0.5rem; padding: 0.6rem; border-radius: 6px; font-size: 0.9rem; text-align: center; }
+        .demo-verify-result.pass { background: rgba(52,211,153,0.15); color: var(--green); }
+        .demo-verify-result.fail { background: rgba(239,68,68,0.15); color: #EF4444; }
+
         /* ===== Responsive ===== */
         @media (max-width: 640px) {
             .hero h1 { font-size: 2rem; }
@@ -363,6 +404,8 @@
             nav .container { gap: 1rem; }
             .card { padding: 1.15rem; }
             pre { font-size: 0.78rem; padding: 0.9rem; }
+            .demo-code-display { font-size: 2.2rem; letter-spacing: 0.2em; }
+            .demo-dropdowns { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -380,6 +423,7 @@
             <a href="#configuration">Config</a>
             <a href="#frameworks">Frameworks</a>
             <a href="#api">API</a>
+            <a href="#demo">Live Demo</a>
             <a href="#security">Security</a>
         </div>
     </nav>
@@ -412,6 +456,76 @@
     </div>
 
     <div class="container">
+
+        <!-- Live Demo -->
+        <section id="demo">
+            <h2 class="section-title">Try It Live</h2>
+            <p class="section-desc">Generate and verify TOTP codes in your browser. Same RFC 6238 algorithm as the library — running entirely client-side via the Web Crypto API.</p>
+            <div class="card">
+                <div class="demo-container">
+                    <div class="demo-inputs">
+                        <div class="demo-field">
+                            <label for="demo-secret">Secret Key (Base32)</label>
+                            <div class="demo-secret-row">
+                                <input type="text" id="demo-secret" spellcheck="false" autocomplete="off" placeholder="JBSWY3DPEHPK3PXP">
+                                <button class="demo-btn demo-btn-sm" onclick="generateDemoSecret()">Generate</button>
+                            </div>
+                        </div>
+                        <div class="demo-dropdowns">
+                            <div class="demo-field">
+                                <label for="demo-algo">Algorithm</label>
+                                <select id="demo-algo">
+                                    <option value="SHA-1" selected>SHA-1</option>
+                                    <option value="SHA-256">SHA-256</option>
+                                    <option value="SHA-512">SHA-512</option>
+                                </select>
+                            </div>
+                            <div class="demo-field">
+                                <label for="demo-digits">Digits</label>
+                                <select id="demo-digits">
+                                    <option value="6" selected>6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                            <div class="demo-field">
+                                <label for="demo-period">Period</label>
+                                <select id="demo-period">
+                                    <option value="15">15s</option>
+                                    <option value="30" selected>30s</option>
+                                    <option value="60">60s</option>
+                                    <option value="90">90s</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="demo-output">
+                        <div class="demo-code-display" id="demo-code">------</div>
+                        <div class="demo-timer-row">
+                            <div class="demo-timer-bar-bg">
+                                <div class="demo-timer-bar" id="demo-timer-bar"></div>
+                            </div>
+                            <span class="demo-timer-text" id="demo-timer-text">--s remaining</span>
+                        </div>
+                        <div class="demo-actions">
+                            <button class="demo-btn" onclick="copyDemoCode()">Copy Code</button>
+                            <button class="demo-btn demo-btn-outline" onclick="verifyDemoCode()">Verify a Code</button>
+                        </div>
+                    </div>
+                    <div class="demo-verify-panel" id="demo-verify-panel" style="display:none;">
+                        <div class="demo-field">
+                            <label for="demo-verify-input">Enter code to verify</label>
+                            <div class="demo-secret-row">
+                                <input type="text" id="demo-verify-input" maxlength="8" placeholder="Enter TOTP code" autocomplete="off">
+                                <button class="demo-btn demo-btn-sm" onclick="runVerify()">Check</button>
+                            </div>
+                        </div>
+                        <div id="demo-verify-result"></div>
+                    </div>
+                </div>
+                <p style="color:var(--text-muted);font-size:0.8rem;margin-top:1rem;text-align:center;">No secrets leave your browser. Powered by the Web Crypto API.</p>
+            </div>
+        </section>
 
         <!-- Installation -->
         <section id="installation">
@@ -862,6 +976,132 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, <span c
                 btn.style.color = '';
             }, 1500);
         }
+
+        // ===== Live Demo: TOTP in the browser =====
+        var B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        var demoInterval = null;
+        var currentCode = '';
+
+        function b32decode(s) {
+            s = s.replace(/=+$/, '').replace(/\s/g, '').toUpperCase();
+            var out = [], buf = 0, bits = 0;
+            for (var i = 0; i < s.length; i++) {
+                var v = B32.indexOf(s[i]); if (v < 0) continue;
+                buf = (buf << 5) | v; bits += 5;
+                if (bits >= 8) { bits -= 8; out.push((buf >>> bits) & 0xff); }
+            }
+            return new Uint8Array(out);
+        }
+
+        function b32encode(bytes) {
+            var r = '', buf = 0, bits = 0;
+            for (var i = 0; i < bytes.length; i++) {
+                buf = (buf << 8) | bytes[i]; bits += 8;
+                while (bits >= 5) { bits -= 5; r += B32[(buf >>> bits) & 0x1f]; }
+            }
+            if (bits > 0) r += B32[(buf << (5 - bits)) & 0x1f];
+            return r;
+        }
+
+        function generateDemoSecret() {
+            var bytes = new Uint8Array(20);
+            crypto.getRandomValues(bytes);
+            document.getElementById('demo-secret').value = b32encode(bytes);
+            startDemo();
+        }
+
+        async function computeTOTP(secret, time, algo, digits, period) {
+            var key = b32decode(secret);
+            var counter = Math.floor(time / period);
+            var buf = new ArrayBuffer(8);
+            var view = new DataView(buf);
+            view.setUint32(0, Math.floor(counter / 0x100000000));
+            view.setUint32(4, counter & 0xffffffff);
+            var algoMap = { 'SHA-1': 'SHA-1', 'SHA-256': 'SHA-256', 'SHA-512': 'SHA-512' };
+            var cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: algoMap[algo] }, false, ['sign']);
+            var sig = await crypto.subtle.sign('HMAC', cryptoKey, buf);
+            var hash = new Uint8Array(sig);
+            var offset = hash[hash.length - 1] & 0x0f;
+            var binary = ((hash[offset] & 0x7f) << 24) | ((hash[offset+1] & 0xff) << 16) | ((hash[offset+2] & 0xff) << 8) | (hash[offset+3] & 0xff);
+            var pow = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000];
+            var otp = binary % pow[digits];
+            return otp.toString().padStart(digits, '0');
+        }
+
+        async function updateDemo() {
+            var secret = document.getElementById('demo-secret').value.trim();
+            if (!secret) { document.getElementById('demo-code').textContent = '------'; return; }
+            var algo = document.getElementById('demo-algo').value;
+            var digits = parseInt(document.getElementById('demo-digits').value);
+            var period = parseInt(document.getElementById('demo-period').value);
+            var now = Math.floor(Date.now() / 1000);
+            var remaining = period - (now % period);
+            var pct = (remaining / period) * 100;
+
+            try {
+                currentCode = await computeTOTP(secret, now, algo, digits, period);
+                document.getElementById('demo-code').textContent = currentCode;
+            } catch(e) {
+                document.getElementById('demo-code').textContent = 'Error';
+            }
+
+            var bar = document.getElementById('demo-timer-bar');
+            bar.style.width = pct + '%';
+            bar.className = 'demo-timer-bar' + (pct < 20 ? ' critical' : pct < 40 ? ' warning' : '');
+            document.getElementById('demo-timer-text').textContent = remaining + 's remaining';
+        }
+
+        function startDemo() {
+            if (demoInterval) clearInterval(demoInterval);
+            updateDemo();
+            demoInterval = setInterval(updateDemo, 500);
+        }
+
+        function copyDemoCode() {
+            if (!currentCode) return;
+            var btn = document.querySelector('.demo-actions .demo-btn');
+            copyToClipboard(currentCode, btn);
+        }
+
+        function verifyDemoCode() {
+            var panel = document.getElementById('demo-verify-panel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('demo-verify-input').value = '';
+            document.getElementById('demo-verify-result').innerHTML = '';
+        }
+
+        async function runVerify() {
+            var input = document.getElementById('demo-verify-input').value.trim();
+            var secret = document.getElementById('demo-secret').value.trim();
+            var algo = document.getElementById('demo-algo').value;
+            var digits = parseInt(document.getElementById('demo-digits').value);
+            var period = parseInt(document.getElementById('demo-period').value);
+            var now = Math.floor(Date.now() / 1000);
+            var result = document.getElementById('demo-verify-result');
+
+            if (!input || !secret) { result.innerHTML = ''; return; }
+
+            // Check current + drift ±1
+            var match = false;
+            for (var d = -1; d <= 1; d++) {
+                var code = await computeTOTP(secret, now + (d * period), algo, digits, period);
+                if (code === input) { match = true; break; }
+            }
+
+            result.className = 'demo-verify-result ' + (match ? 'pass' : 'fail');
+            result.textContent = match ? 'Valid — code matches (drift ' + d + ')' : 'Invalid — code does not match';
+        }
+
+        // Auto-start demo on input change
+        ['demo-secret', 'demo-algo', 'demo-digits', 'demo-period'].forEach(function(id) {
+            document.getElementById(id).addEventListener('change', startDemo);
+            document.getElementById(id).addEventListener('input', function() {
+                if (id === 'demo-secret') startDemo();
+            });
+        });
+
+        // Generate initial secret and start
+        generateDemoSecret();
     </script>
 </body>
 </html>
