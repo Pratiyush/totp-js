@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>totp-js - Security-hardened TOTP for JavaScript &amp; TypeScript</title>
+    <meta name="description" content="Security-hardened JavaScript/TypeScript TOTP library for two-factor authentication (2FA). RFC 6238 compliant with constant-time verification, replay attack prevention, and zero runtime dependencies.">
+    <meta name="keywords" content="TOTP, HOTP, JavaScript, TypeScript, 2FA, two-factor authentication, OTP, one-time password, RFC 6238, security, authentication, Node.js, Express, Next.js, NestJS, Fastify, Google Authenticator">
+    <meta name="author" content="Pratiyush Kumar Singh">
+    <link rel="canonical" href="https://pratiyush.github.io/totp-js/">
+    <meta name="color-scheme" content="dark light">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="totp-js - Security-hardened TOTP for JavaScript &amp; TypeScript">
+    <meta property="og:description" content="Enterprise-grade JS/TS TOTP library for two-factor authentication. RFC 6238 compliant, zero dependencies, constant-time verification.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pratiyush.github.io/totp-js/">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="totp-js - Security-hardened TOTP for JS/TS">
+    <meta name="twitter:description" content="RFC 6238 compliant TOTP library with replay protection, constant-time verification, and zero runtime dependencies.">
+
+    <style>
+        /* ===== Dark theme (default) ===== */
+        :root, [data-theme="dark"] {
+            --bg: #0F172A;
+            --surface: #1E293B;
+            --border: #334155;
+            --text: #E2E8F0;
+            --text-muted: #94A3B8;
+            --accent: #3B82F6;
+            --accent-hover: #60A5FA;
+            --green: #34D399;
+            --code-bg: #0F172A;
+            --shadow: 0 1px 3px rgba(0,0,0,0.4);
+            --tab-bg: #1E293B;
+            --tab-active: #0F172A;
+            --hero-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            --keyword: #C084FC;
+            --string: #34D399;
+            --comment: #64748B;
+            --func: #60A5FA;
+            --type: #F472B6;
+            --number: #FB923C;
+            --copy-bg: #334155;
+        }
+
+        /* ===== Light theme ===== */
+        [data-theme="light"] {
+            --bg: #FFFFFF;
+            --surface: #F8FAFC;
+            --border: #E2E8F0;
+            --text: #0F172A;
+            --text-muted: #64748B;
+            --accent: #2563EB;
+            --accent-hover: #3B82F6;
+            --green: #059669;
+            --code-bg: #F1F5F9;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+            --tab-bg: #E2E8F0;
+            --tab-active: #F1F5F9;
+            --hero-gradient: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+            --keyword: #7C3AED;
+            --string: #059669;
+            --comment: #94A3B8;
+            --func: #2563EB;
+            --type: #DB2777;
+            --number: #EA580C;
+            --copy-bg: #E2E8F0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container { max-width: 940px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* ===== Theme toggle ===== */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            z-index: 100;
+            transition: background 0.3s, border 0.3s, box-shadow 0.3s;
+            box-shadow: var(--shadow);
+            color: var(--text);
+        }
+        .theme-toggle:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+
+        /* ===== Navigation ===== */
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            z-index: 50;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        nav .container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+            overflow-x: auto;
+        }
+        nav .logo { font-weight: 700; font-size: 1rem; color: var(--accent); text-decoration: none; white-space: nowrap; }
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--accent); }
+
+        /* ===== Hero ===== */
+        .hero {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            background: var(--hero-gradient);
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .tagline {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            margin-bottom: 1.75rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero .install-cmd {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.7rem 1.2rem;
+            font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        .hero .install-cmd .dollar { color: var(--text-muted); user-select: none; }
+        .hero .install-cmd .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.2rem;
+            transition: color 0.2s;
+        }
+        .hero .install-cmd .copy-btn:hover { color: var(--accent); }
+
+        .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .badges img { height: 22px; }
+        .hero-links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .hero-links a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.55rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.2s, border-color 0.2s, transform 0.1s;
+        }
+        .hero-links a:active { transform: scale(0.97); }
+        .hero-links .primary { background: var(--accent); color: #fff; }
+        .hero-links .primary:hover { background: var(--accent-hover); }
+        .hero-links .secondary { border: 1px solid var(--border); }
+        .hero-links .secondary:hover { border-color: var(--accent); background: var(--surface); }
+
+        /* ===== Section ===== */
+        section { padding: 3rem 0 0; }
+        section:last-of-type { padding-bottom: 2rem; }
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+        }
+        .section-desc {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            max-width: 700px;
+        }
+
+        /* ===== Card ===== */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+        .card h2 { font-size: 1.25rem; margin-bottom: 0.75rem; }
+        .card h3 { font-size: 1rem; margin: 1.5rem 0 0.5rem; color: var(--text-muted); }
+        .card p { color: var(--text-muted); font-size: 0.92rem; margin-bottom: 0.75rem; }
+
+        /* ===== Code ===== */
+        .code-block { position: relative; margin-bottom: 1rem; }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.15rem 1.25rem;
+            overflow-x: auto;
+            font-size: 0.84rem;
+            line-height: 1.7;
+            -webkit-overflow-scrolling: touch;
+        }
+        code { font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace; }
+        p code, li code, td code {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            padding: 0.12rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.84em;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--copy-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+            transition: color 0.2s, border-color 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* Syntax highlighting */
+        .kw { color: var(--keyword); }
+        .str { color: var(--string); }
+        .cmt { color: var(--comment); font-style: italic; }
+        .fn { color: var(--func); }
+        .tp { color: var(--type); }
+        .num { color: var(--number); }
+
+        /* ===== Tabs ===== */
+        .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 0; }
+        .tab {
+            padding: 0.5rem 1.1rem;
+            font-size: 0.82rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.2s, border-color 0.2s;
+            font-family: inherit;
+        }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .tab-content pre { border-radius: 0 0 8px 8px; border-top: none; margin-top: 0; }
+
+        /* ===== Features grid ===== */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .feature {
+            padding: 1.4rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .feature:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            background: rgba(59,130,246,0.1);
+        }
+        .feature h3 { font-size: 0.95rem; margin-bottom: 0.35rem; font-weight: 600; }
+        .feature p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+        /* ===== Table ===== */
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { text-align: left; padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--border); }
+        th { font-weight: 600; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        td { vertical-align: top; }
+
+        /* ===== Security list ===== */
+        .security-list { list-style: none; padding: 0; }
+        .security-list li {
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.92rem;
+        }
+        .security-list li:last-child { border-bottom: none; }
+        .security-list .icon {
+            color: var(--green);
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        /* ===== Footer ===== */
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 3rem;
+        }
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        .footer-links { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .hero .tagline { font-size: 1.05rem; }
+            .section-title { font-size: 1.4rem; }
+            .hero .install-cmd { font-size: 0.82rem; padding: 0.5rem 0.9rem; }
+            .features { grid-template-columns: 1fr; }
+            nav .container { gap: 1rem; }
+            .card { padding: 1.15rem; }
+            pre { font-size: 0.78rem; padding: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+        <span id="theme-icon">&#9788;</span>
+    </button>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">totp-js</a>
+            <a href="#installation">Install</a>
+            <a href="#quick-start">Quick Start</a>
+            <a href="#configuration">Config</a>
+            <a href="#frameworks">Frameworks</a>
+            <a href="#api">API</a>
+            <a href="#security">Security</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="container">
+            <h1>totp<span class="accent">-js</span></h1>
+            <p class="tagline">Security-hardened TOTP for JavaScript &amp; TypeScript. Zero dependencies, constant-time verification, replay protection.</p>
+            <div style="margin-bottom: 1.5rem;">
+                <div class="install-cmd">
+                    <span class="dollar">$</span>
+                    <span>npm install totp-js</span>
+                    <button class="copy-btn" onclick="copyText('npm install totp-js', this)" title="Copy to clipboard">Copy</button>
+                </div>
+            </div>
+            <div class="badges">
+                <a href="https://www.npmjs.com/package/totp-js"><img src="https://img.shields.io/npm/v/totp-js?style=flat-square&color=3B82F6" alt="npm version"></a>
+                <img src="https://img.shields.io/badge/TypeScript-5.4+-3178C6.svg?style=flat-square" alt="TypeScript 5.4+">
+                <img src="https://img.shields.io/badge/Node.js-18+-339933.svg?style=flat-square" alt="Node.js 18+">
+                <img src="https://img.shields.io/badge/RFC-6238-34D399.svg?style=flat-square" alt="RFC 6238">
+                <a href="https://github.com/Pratiyush/totp-js/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-3B82F6.svg?style=flat-square" alt="MIT License"></a>
+            </div>
+            <div class="hero-links">
+                <a href="https://github.com/Pratiyush/totp-js" class="primary">GitHub</a>
+                <a href="https://www.npmjs.com/package/totp-js" class="secondary">npm</a>
+                <a href="#api" class="secondary">API Reference</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <!-- Installation -->
+        <section id="installation">
+            <h2 class="section-title">Installation</h2>
+            <p class="section-desc">Install via your preferred package manager. Requires Node.js 18+ with native <code>crypto</code> support.</p>
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this, 'tab-npm')">npm</button>
+                    <button class="tab" onclick="switchTab(this, 'tab-yarn')">yarn</button>
+                    <button class="tab" onclick="switchTab(this, 'tab-pnpm')">pnpm</button>
+                </div>
+                <div class="tab-content active" id="tab-npm">
+                    <div class="code-block"><pre><code>npm install totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+                <div class="tab-content" id="tab-yarn">
+                    <div class="code-block"><pre><code>yarn add totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+                <div class="tab-content" id="tab-pnpm">
+                    <div class="code-block"><pre><code>pnpm add totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quick-start">
+            <h2 class="section-title">Quick Start</h2>
+            <p class="section-desc">Generate and verify TOTP codes in four lines of code.</p>
+            <div class="card">
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, generateSecret, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="cmt">// 1. Generate a secret for a new user</span>
+<span class="kw">const</span> secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);
+
+<span class="cmt">// 2. Create a TOTP instance</span>
+<span class="kw">const</span> totp = TOTP.<span class="fn">defaultInstance</span>();
+
+<span class="cmt">// 3. Generate a code</span>
+<span class="kw">const</span> code = totp.<span class="fn">generate</span>(secret);
+
+<span class="cmt">// 4. Verify user input</span>
+<span class="kw">const</span> valid = totp.<span class="fn">verify</span>(secret, userCode);
+console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</span></code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            </div>
+        </section>
+
+        <!-- Replay Protection -->
+        <section id="replay-protection">
+            <h2 class="section-title">Replay Protection</h2>
+            <p class="section-desc">Prevent the same TOTP code from being used twice within its validity window.</p>
+            <div class="card">
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="cmt">// Create a replay guard with 2-minute retention</span>
+<span class="kw">const</span> replayGuard = <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>);
+
+<span class="cmt">// Create TOTP with replay protection</span>
+<span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({ replayGuard });
+
+<span class="cmt">// Verify with a userId for per-user tracking</span>
+<span class="kw">const</span> valid = totp.<span class="fn">verify</span>(secret, code, userId);
+<span class="cmt">// Same code + same userId = rejected on second attempt</span>
+
+<span class="cmt">// Or auto-configure retention based on TOTP config</span>
+<span class="kw">const</span> guard = InMemoryReplayGuard.<span class="fn">forConfig</span>({ period: <span class="num">30</span>, allowedDrift: <span class="num">1</span> });</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            </div>
+        </section>
+
+        <!-- QR Code URI -->
+        <section id="qr-code">
+            <h2 class="section-title">QR Code URI</h2>
+            <p class="section-desc">Build <code>otpauth://</code> URIs for authenticator apps like Google Authenticator, Microsoft Authenticator, and Authy.</p>
+            <div class="card">
+                <div class="code-block"><pre><code><span class="kw">import</span> { buildOtpauthUri, sha256Config } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="cmt">// Build an otpauth:// URI for QR code generation</span>
+<span class="kw">const</span> uri = <span class="fn">buildOtpauthUri</span>(
+  secret,
+  <span class="str">'user@example.com'</span>,
+  <span class="str">'MyApp'</span>,
+  <span class="fn">sha256Config</span>()
+);
+
+<span class="cmt">// Result: otpauth://totp/MyApp%3Auser%40example.com?secret=...&issuer=MyApp&algorithm=SHA256&digits=6&period=30</span>
+
+<span class="cmt">// Use with any QR library (e.g., qrcode npm package)</span>
+<span class="kw">import</span> QRCode <span class="kw">from</span> <span class="str">'qrcode'</span>;
+<span class="kw">const</span> dataUrl = <span class="kw">await</span> QRCode.<span class="fn">toDataURL</span>(uri);</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration">
+            <h2 class="section-title">Configuration</h2>
+            <p class="section-desc">Use preset configurations or create fully custom ones.</p>
+            <div class="card">
+                <h2>Preset Configurations</h2>
+                <div class="code-block"><pre><code><span class="kw">import</span> { defaultConfig, sha256Config, highSecurityConfig } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="cmt">// Google Authenticator compatible (SHA-1, 6 digits, 30s)</span>
+<span class="fn">defaultConfig</span>();
+
+<span class="cmt">// Recommended for new apps (SHA-256, 6 digits, 30s)</span>
+<span class="fn">sha256Config</span>();
+
+<span class="cmt">// Maximum security (SHA-512, 8 digits, 30s)</span>
+<span class="fn">highSecurityConfig</span>();</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+
+                <h3>Custom Configuration</h3>
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
+  algorithm: Algorithm.SHA256,  <span class="cmt">// SHA1, SHA256, SHA512</span>
+  digits: <span class="num">8</span>,                    <span class="cmt">// 6-8 digits</span>
+  period: <span class="num">30</span>,                   <span class="cmt">// 15-120 seconds</span>
+  allowedDrift: <span class="num">1</span>,              <span class="cmt">// time window tolerance</span>
+});</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            </div>
+        </section>
+
+        <!-- Framework Integration -->
+        <section id="frameworks">
+            <h2 class="section-title">Framework Integration</h2>
+            <p class="section-desc">Drop-in examples for popular Node.js frameworks.</p>
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(this, 'fw-express')">Express.js</button>
+                    <button class="tab" onclick="switchTab(this, 'fw-next')">Next.js</button>
+                    <button class="tab" onclick="switchTab(this, 'fw-nest')">NestJS</button>
+                    <button class="tab" onclick="switchTab(this, 'fw-fastify')">Fastify</button>
+                </div>
+                <div class="tab-content active" id="fw-express">
+                    <div class="code-block"><pre><code><span class="kw">import</span> express <span class="kw">from</span> <span class="str">'express'</span>;
+<span class="kw">import</span> {
+  TOTP, generateSecret, buildOtpauthUri,
+  Algorithm, InMemoryReplayGuard, sha256Config
+} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+<span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
+  algorithm: Algorithm.SHA256,
+  replayGuard: <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>),
+});
+
+app.<span class="fn">post</span>(<span class="str">'/2fa/enroll'</span>, (req, res) => {
+  <span class="kw">const</span> secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);
+  <span class="cmt">// Store secret in database (encrypted)</span>
+  <span class="kw">const</span> uri = <span class="fn">buildOtpauthUri</span>(secret, req.user.email, <span class="str">'MyApp'</span>, <span class="fn">sha256Config</span>());
+  res.<span class="fn">json</span>({ secret, uri });
+});
+
+app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, (req, res) => {
+  <span class="kw">const</span> { code } = req.body;
+  <span class="kw">const</span> secret = getUserSecret(req.user.id); <span class="cmt">// from DB</span>
+  <span class="kw">const</span> valid = totp.<span class="fn">verify</span>(secret, code, req.user.id);
+  res.<span class="fn">json</span>({ valid });
+});</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+                <div class="tab-content" id="fw-next">
+                    <div class="code-block"><pre><code><span class="cmt">// app/api/2fa/verify/route.ts</span>
+<span class="kw">import</span> { NextResponse } <span class="kw">from</span> <span class="str">'next/server'</span>;
+<span class="kw">import</span> { TOTP, Algorithm, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
+  algorithm: Algorithm.SHA256,
+  replayGuard: <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>),
+});
+
+<span class="kw">export async function</span> <span class="fn">POST</span>(request: <span class="tp">Request</span>) {
+  <span class="kw">const</span> { code, userId } = <span class="kw">await</span> request.<span class="fn">json</span>();
+  <span class="kw">const</span> secret = <span class="kw">await</span> <span class="fn">getUserSecret</span>(userId);
+  <span class="kw">const</span> valid = totp.<span class="fn">verify</span>(secret, code, userId);
+  <span class="kw">return</span> NextResponse.<span class="fn">json</span>({ valid });
+}</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+                <div class="tab-content" id="fw-nest">
+                    <div class="code-block"><pre><code><span class="kw">import</span> { Injectable } <span class="kw">from</span> <span class="str">'@nestjs/common'</span>;
+<span class="kw">import</span> {
+  TOTP, generateSecret, buildOtpauthUri,
+  Algorithm, InMemoryReplayGuard, sha256Config
+} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+@<span class="fn">Injectable</span>()
+<span class="kw">export class</span> <span class="tp">TwoFactorService</span> {
+  <span class="kw">private readonly</span> totp = TOTP.<span class="fn">create</span>({
+    algorithm: Algorithm.SHA256,
+    replayGuard: <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>),
+  });
+
+  <span class="fn">enrollUser</span>(email: <span class="tp">string</span>): { secret: <span class="tp">string</span>; uri: <span class="tp">string</span> } {
+    <span class="kw">const</span> secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);
+    <span class="kw">const</span> uri = <span class="fn">buildOtpauthUri</span>(secret, email, <span class="str">'MyApp'</span>, <span class="fn">sha256Config</span>());
+    <span class="kw">return</span> { secret, uri };
+  }
+
+  <span class="fn">verifyCode</span>(userId: <span class="tp">string</span>, code: <span class="tp">string</span>, secret: <span class="tp">string</span>): <span class="tp">boolean</span> {
+    <span class="kw">return</span> <span class="kw">this</span>.totp.<span class="fn">verify</span>(secret, code, userId);
+  }
+}</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+                <div class="tab-content" id="fw-fastify">
+                    <div class="code-block"><pre><code><span class="kw">import</span> Fastify <span class="kw">from</span> <span class="str">'fastify'</span>;
+<span class="kw">import</span> {
+  TOTP, generateSecret, buildOtpauthUri,
+  Algorithm, InMemoryReplayGuard, sha256Config
+} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="kw">const</span> app = <span class="fn">Fastify</span>();
+<span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
+  algorithm: Algorithm.SHA256,
+  replayGuard: <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>),
+});
+
+app.<span class="fn">post</span>(<span class="str">'/2fa/enroll'</span>, <span class="kw">async</span> (request, reply) => {
+  <span class="kw">const</span> secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);
+  <span class="kw">const</span> uri = <span class="fn">buildOtpauthUri</span>(secret, request.user.email, <span class="str">'MyApp'</span>, <span class="fn">sha256Config</span>());
+  <span class="kw">return</span> { secret, uri };
+});
+
+app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, <span class="kw">async</span> (request, reply) => {
+  <span class="kw">const</span> { code } = request.body <span class="kw">as</span> { code: <span class="tp">string</span> };
+  <span class="kw">const</span> secret = <span class="kw">await</span> <span class="fn">getUserSecret</span>(request.user.id);
+  <span class="kw">const</span> valid = totp.<span class="fn">verify</span>(secret, code, request.user.id);
+  <span class="kw">return</span> { valid };
+});</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secret Generation -->
+        <section id="secrets">
+            <h2 class="section-title">Secret Generation</h2>
+            <p class="section-desc">Generate cryptographically secure secrets sized appropriately for each algorithm.</p>
+            <div class="card">
+                <div class="code-block"><pre><code><span class="kw">import</span> { generateSecret, generateSecretBytes, isValidSecret, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+
+<span class="cmt">// Generate for a specific algorithm (recommended)</span>
+<span class="kw">const</span> sha1Secret   = <span class="fn">generateSecret</span>(Algorithm.SHA1);    <span class="cmt">// 20 bytes / 160 bits</span>
+<span class="kw">const</span> sha256Secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);  <span class="cmt">// 32 bytes / 256 bits</span>
+<span class="kw">const</span> sha512Secret = <span class="fn">generateSecret</span>(Algorithm.SHA512);  <span class="cmt">// 64 bytes / 512 bits</span>
+
+<span class="cmt">// Or specify exact byte length</span>
+<span class="kw">const</span> secret = <span class="fn">generateSecretBytes</span>(<span class="num">32</span>);
+
+<span class="cmt">// Validate a Base32 secret</span>
+<span class="kw">const</span> valid = <span class="fn">isValidSecret</span>(secret); <span class="cmt">// true</span></code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section id="features">
+            <h2 class="section-title">Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">&#9745;</div>
+                    <h3>RFC Compliant</h3>
+                    <p>Full compliance with TOTP (RFC 6238) and HOTP (RFC 4226) standards. Tested against reference vectors.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">&#9881;</div>
+                    <h3>Zero Dependencies</h3>
+                    <p>No runtime dependencies. Uses Node.js built-in <code>crypto</code> module for all cryptographic operations.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">&#128737;</div>
+                    <h3>Replay Protection</h3>
+                    <p>Built-in <code>InMemoryReplayGuard</code> prevents the same code from being used twice. Pluggable via the <code>ReplayGuard</code> interface.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">&#9201;</div>
+                    <h3>Constant-Time Verification</h3>
+                    <p>All code comparisons use constant-time algorithms to prevent timing side-channel attacks.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">&#9998;</div>
+                    <h3>TypeScript Native</h3>
+                    <p>Written in TypeScript with full type definitions. Supports ESM and CommonJS out of the box.</p>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">&#9881;</div>
+                    <h3>Preset Configs</h3>
+                    <p>Ready-to-use presets: <code>defaultConfig</code>, <code>sha256Config</code>, and <code>highSecurityConfig</code>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Reference -->
+        <section id="api">
+            <h2 class="section-title">API Reference</h2>
+
+            <div class="card">
+                <h2>TOTP</h2>
+                <div class="table-wrapper">
+                <table>
+                    <tr><th>Method</th><th>Description</th></tr>
+                    <tr><td><code>TOTP.create(options?)</code></td><td>Create instance with custom options (algorithm, digits, period, drift, replayGuard)</td></tr>
+                    <tr><td><code>TOTP.defaultInstance()</code></td><td>Create instance with default config (SHA-1, 6 digits, 30s)</td></tr>
+                    <tr><td><code>generate(secret)</code></td><td>Generate TOTP code for the current time</td></tr>
+                    <tr><td><code>generateAt(secret, timestamp)</code></td><td>Generate code for a specific Unix timestamp (ms)</td></tr>
+                    <tr><td><code>verify(secret, code, userId?)</code></td><td>Verify a code. Returns <code>boolean</code>. Includes replay protection when userId provided.</td></tr>
+                    <tr><td><code>verifyWithDetails(secret, code, userId?)</code></td><td>Verify with detailed result: <code>{ valid, timeOffset, message }</code></td></tr>
+                    <tr><td><code>getSecondsRemaining()</code></td><td>Seconds until current code expires</td></tr>
+                    <tr><td><code>getCurrentCounter()</code></td><td>Current TOTP time counter value</td></tr>
+                </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Configuration Presets</h2>
+                <div class="table-wrapper">
+                <table>
+                    <tr><th>Function</th><th>Algorithm</th><th>Digits</th><th>Period</th><th>Use Case</th></tr>
+                    <tr><td><code>defaultConfig()</code></td><td>SHA-1</td><td>6</td><td>30s</td><td>Google Authenticator compatible</td></tr>
+                    <tr><td><code>sha256Config()</code></td><td>SHA-256</td><td>6</td><td>30s</td><td style="color: var(--green);">Recommended for new apps</td></tr>
+                    <tr><td><code>highSecurityConfig()</code></td><td>SHA-512</td><td>8</td><td>30s</td><td>Maximum security</td></tr>
+                    <tr><td><code>createConfig(opts)</code></td><td colspan="4">Create custom config with validation (period 15-120s, digits 6-8, drift 0-5)</td></tr>
+                </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Algorithms</h2>
+                <div class="table-wrapper">
+                <table>
+                    <tr><th>Algorithm</th><th>Key Size</th><th>Constant</th><th>Use Case</th></tr>
+                    <tr><td>SHA-1</td><td>20 bytes (160 bits)</td><td><code>Algorithm.SHA1</code></td><td>Legacy / Google Authenticator</td></tr>
+                    <tr><td><strong>SHA-256</strong></td><td>32 bytes (256 bits)</td><td><code>Algorithm.SHA256</code></td><td style="color: var(--green);">Recommended</td></tr>
+                    <tr><td>SHA-512</td><td>64 bytes (512 bits)</td><td><code>Algorithm.SHA512</code></td><td>Maximum security</td></tr>
+                </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Utility Functions</h2>
+                <div class="table-wrapper">
+                <table>
+                    <tr><th>Function</th><th>Description</th></tr>
+                    <tr><td><code>generateSecret(algorithm?)</code></td><td>Generate Base32-encoded secret sized for the given algorithm</td></tr>
+                    <tr><td><code>generateSecretBytes(length?)</code></td><td>Generate Base32 secret with exact byte length (min 16)</td></tr>
+                    <tr><td><code>generateRawSecret(length?)</code></td><td>Generate raw <code>Uint8Array</code> secret bytes</td></tr>
+                    <tr><td><code>isValidSecret(secret)</code></td><td>Validate a Base32 secret string</td></tr>
+                    <tr><td><code>buildOtpauthUri(secret, account, issuer, config?)</code></td><td>Build <code>otpauth://</code> URI for QR codes</td></tr>
+                    <tr><td><code>algorithmFromName(name)</code></td><td>Look up algorithm by string name (e.g. <code>"SHA256"</code>)</td></tr>
+                </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security -->
+        <section id="security">
+            <h2 class="section-title">Security</h2>
+            <div class="card">
+                <ul class="security-list">
+                    <li><span class="icon">&#10003;</span><span><strong>Constant-time comparison</strong> &mdash; All TOTP code verifications use constant-time equality checks to prevent timing side-channel attacks.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Replay attack prevention</strong> &mdash; Built-in <code>InMemoryReplayGuard</code> with auto-expiry, or implement the <code>ReplayGuard</code> interface for Redis/database-backed stores.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Input validation</strong> &mdash; All secrets are validated as proper Base32 before use. Configuration values are bounds-checked.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Drift-aware verification</strong> &mdash; Configurable time window tolerance (allowedDrift) to handle clock skew between client and server.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Zero runtime dependencies</strong> &mdash; No third-party code in the dependency tree means a smaller attack surface.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Node.js crypto</strong> &mdash; All cryptographic operations use the built-in <code>node:crypto</code> module backed by OpenSSL.</span></li>
+                    <li><span class="icon">&#10003;</span><span><strong>Typed error handling</strong> &mdash; Custom <code>TOTPError</code> with <code>ErrorCode</code> enum for programmatic error handling.</span></li>
+                </ul>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/Pratiyush/totp-js">GitHub</a>
+                <a href="https://www.npmjs.com/package/totp-js">npm</a>
+                <a href="https://github.com/Pratiyush/totp-js/issues">Issues</a>
+                <a href="https://github.com/Pratiyush/totp-js/blob/main/SECURITY.md">Security Policy</a>
+                <a href="https://pratiyush.github.io/totp-impl/">Java counterpart (totp-lib)</a>
+            </div>
+            <p>MIT License &middot; Created by <a href="https://github.com/Pratiyush">Pratiyush Kumar Singh</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // ===== Theme toggle =====
+        function getPreferredTheme() {
+            var stored = localStorage.getItem('totp-js-theme');
+            if (stored) return stored;
+            return 'dark'; // dark by default
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('theme-icon').innerHTML = theme === 'dark' ? '&#9788;' : '&#9790;';
+            localStorage.setItem('totp-js-theme', theme);
+        }
+
+        function toggleTheme() {
+            var current = document.documentElement.getAttribute('data-theme') || 'dark';
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        applyTheme(getPreferredTheme());
+
+        // ===== Tabs =====
+        function switchTab(tabEl, contentId) {
+            var card = tabEl.closest('.card') || tabEl.parentElement.parentElement;
+            var tabs = card.querySelectorAll('.tab');
+            var contents = card.querySelectorAll('.tab-content');
+            for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+            for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+            tabEl.classList.add('active');
+            var target = card.querySelector('#' + contentId);
+            if (target) target.classList.add('active');
+        }
+
+        // ===== Copy buttons =====
+        function copyCode(btn) {
+            var codeBlock = btn.closest('.code-block');
+            var codeEl = codeBlock.querySelector('code');
+            var text = codeEl.textContent || codeEl.innerText;
+            copyToClipboard(text, btn);
+        }
+
+        function copyText(text, btn) {
+            copyToClipboard(text, btn);
+        }
+
+        function copyToClipboard(text, btn) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showCopied(btn);
+                });
+            } else {
+                var textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try { document.execCommand('copy'); showCopied(btn); } catch(e) {}
+                document.body.removeChild(textarea);
+            }
+        }
+
+        function showCopied(btn) {
+            var original = btn.textContent;
+            btn.textContent = 'Copied!';
+            btn.style.color = 'var(--green)';
+            setTimeout(function() {
+                btn.textContent = original;
+                btn.style.color = '';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
