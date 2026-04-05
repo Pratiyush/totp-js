@@ -436,12 +436,12 @@
             <div style="margin-bottom: 1.5rem;">
                 <div class="install-cmd">
                     <span class="dollar">$</span>
-                    <span>npm install totp-js</span>
-                    <button class="copy-btn" onclick="copyText('npm install totp-js', this)" title="Copy to clipboard">Copy</button>
+                    <span>npm install @authcraft/totp-js</span>
+                    <button class="copy-btn" onclick="copyText('npm install @authcraft/totp-js', this)" title="Copy to clipboard">Copy</button>
                 </div>
             </div>
             <div class="badges">
-                <a href="https://www.npmjs.com/package/totp-js"><img src="https://img.shields.io/npm/v/totp-js?style=flat-square&color=3B82F6" alt="npm version"></a>
+                <a href="https://www.npmjs.com/package/@authcraft/totp-js"><img src="https://img.shields.io/npm/v/@authcraft/totp-js?style=flat-square&color=3B82F6" alt="npm version"></a>
                 <img src="https://img.shields.io/badge/TypeScript-5.4+-3178C6.svg?style=flat-square" alt="TypeScript 5.4+">
                 <img src="https://img.shields.io/badge/Node.js-18+-339933.svg?style=flat-square" alt="Node.js 18+">
                 <img src="https://img.shields.io/badge/RFC-6238-34D399.svg?style=flat-square" alt="RFC 6238">
@@ -449,7 +449,7 @@
             </div>
             <div class="hero-links">
                 <a href="https://github.com/Pratiyush/totp-js" class="primary">GitHub</a>
-                <a href="https://www.npmjs.com/package/totp-js" class="secondary">npm</a>
+                <a href="https://www.npmjs.com/package/@authcraft/totp-js" class="secondary">npm</a>
                 <a href="#api" class="secondary">API Reference</a>
             </div>
         </div>
@@ -538,7 +538,7 @@
                     <button class="tab" onclick="switchTab(this, 'tab-pnpm')">pnpm</button>
                 </div>
                 <div class="tab-content active" id="tab-npm">
-                    <div class="code-block"><pre><code>npm install totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+                    <div class="code-block"><pre><code>npm install @authcraft/totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
                 </div>
                 <div class="tab-content" id="tab-yarn">
                     <div class="code-block"><pre><code>yarn add totp-js</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
@@ -554,7 +554,7 @@
             <h2 class="section-title">Quick Start</h2>
             <p class="section-desc">Generate and verify TOTP codes in four lines of code.</p>
             <div class="card">
-                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, generateSecret, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, generateSecret, Algorithm } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="cmt">// 1. Generate a secret for a new user</span>
 <span class="kw">const</span> secret = <span class="fn">generateSecret</span>(Algorithm.SHA256);
@@ -576,7 +576,7 @@ console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</
             <h2 class="section-title">Replay Protection</h2>
             <p class="section-desc">Prevent the same TOTP code from being used twice within its validity window.</p>
             <div class="card">
-                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="cmt">// Create a replay guard with 2-minute retention</span>
 <span class="kw">const</span> replayGuard = <span class="kw">new</span> <span class="tp">InMemoryReplayGuard</span>(<span class="num">120_000</span>);
@@ -598,7 +598,7 @@ console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</
             <h2 class="section-title">QR Code URI</h2>
             <p class="section-desc">Build <code>otpauth://</code> URIs for authenticator apps like Google Authenticator, Microsoft Authenticator, and Authy.</p>
             <div class="card">
-                <div class="code-block"><pre><code><span class="kw">import</span> { buildOtpauthUri, sha256Config } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { buildOtpauthUri, sha256Config } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="cmt">// Build an otpauth:// URI for QR code generation</span>
 <span class="kw">const</span> uri = <span class="fn">buildOtpauthUri</span>(
@@ -622,7 +622,7 @@ console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</
             <p class="section-desc">Use preset configurations or create fully custom ones.</p>
             <div class="card">
                 <h2>Preset Configurations</h2>
-                <div class="code-block"><pre><code><span class="kw">import</span> { defaultConfig, sha256Config, highSecurityConfig } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { defaultConfig, sha256Config, highSecurityConfig } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="cmt">// Google Authenticator compatible (SHA-1, 6 digits, 30s)</span>
 <span class="fn">defaultConfig</span>();
@@ -634,7 +634,7 @@ console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</
 <span class="fn">highSecurityConfig</span>();</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
 
                 <h3>Custom Configuration</h3>
-                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { TOTP, Algorithm } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
   algorithm: Algorithm.SHA256,  <span class="cmt">// SHA1, SHA256, SHA512</span>
@@ -661,7 +661,7 @@ console.<span class="fn">log</span>(valid); <span class="cmt">// true or false</
 <span class="kw">import</span> {
   TOTP, generateSecret, buildOtpauthUri,
   Algorithm, InMemoryReplayGuard, sha256Config
-} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+} <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="kw">const</span> app = <span class="fn">express</span>();
 <span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
@@ -686,7 +686,7 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, (req, r
                 <div class="tab-content" id="fw-next">
                     <div class="code-block"><pre><code><span class="cmt">// app/api/2fa/verify/route.ts</span>
 <span class="kw">import</span> { NextResponse } <span class="kw">from</span> <span class="str">'next/server'</span>;
-<span class="kw">import</span> { TOTP, Algorithm, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+<span class="kw">import</span> { TOTP, Algorithm, InMemoryReplayGuard } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
   algorithm: Algorithm.SHA256,
@@ -705,7 +705,7 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, (req, r
 <span class="kw">import</span> {
   TOTP, generateSecret, buildOtpauthUri,
   Algorithm, InMemoryReplayGuard, sha256Config
-} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+} <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 @<span class="fn">Injectable</span>()
 <span class="kw">export class</span> <span class="tp">TwoFactorService</span> {
@@ -730,7 +730,7 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, (req, r
 <span class="kw">import</span> {
   TOTP, generateSecret, buildOtpauthUri,
   Algorithm, InMemoryReplayGuard, sha256Config
-} <span class="kw">from</span> <span class="str">'totp-js'</span>;
+} <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="kw">const</span> app = <span class="fn">Fastify</span>();
 <span class="kw">const</span> totp = TOTP.<span class="fn">create</span>({
@@ -759,7 +759,7 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, <span c
             <h2 class="section-title">Secret Generation</h2>
             <p class="section-desc">Generate cryptographically secure secrets sized appropriately for each algorithm.</p>
             <div class="card">
-                <div class="code-block"><pre><code><span class="kw">import</span> { generateSecret, generateSecretBytes, isValidSecret, Algorithm } <span class="kw">from</span> <span class="str">'totp-js'</span>;
+                <div class="code-block"><pre><code><span class="kw">import</span> { generateSecret, generateSecretBytes, isValidSecret, Algorithm } <span class="kw">from</span> <span class="str">'@authcraft/totp-js'</span>;
 
 <span class="cmt">// Generate for a specific algorithm (recommended)</span>
 <span class="kw">const</span> sha1Secret   = <span class="fn">generateSecret</span>(Algorithm.SHA1);    <span class="cmt">// 20 bytes / 160 bits</span>
@@ -896,7 +896,7 @@ app.<span class="fn">post</span>(<span class="str">'/2fa/verify'</span>, <span c
         <div class="container">
             <div class="footer-links">
                 <a href="https://github.com/Pratiyush/totp-js">GitHub</a>
-                <a href="https://www.npmjs.com/package/totp-js">npm</a>
+                <a href="https://www.npmjs.com/package/@authcraft/totp-js">npm</a>
                 <a href="https://github.com/Pratiyush/totp-js/issues">Issues</a>
                 <a href="https://github.com/Pratiyush/totp-js/blob/main/SECURITY.md">Security Policy</a>
                 <a href="https://pratiyush.github.io/totp-impl/">Java counterpart (totp-lib)</a>

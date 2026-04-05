@@ -1,5 +1,5 @@
 {
-  "name": "totp-js",
+  "name": "@authcraft/totp-js",
   "version": "0.9.1",
   "description": "Security-hardened TOTP/2FA library for JavaScript and TypeScript. RFC 6238 compliant with replay protection, constant-time verification, and zero runtime dependencies.",
   "main": "dist/index.js",

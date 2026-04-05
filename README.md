@@ -6,17 +6,17 @@
 
 **Security-hardened TOTP/2FA library for JavaScript and TypeScript**
 
-[![npm version](https://img.shields.io/npm/v/totp-js?style=flat-square)](https://www.npmjs.com/package/totp-js)
+[![npm version](https://img.shields.io/npm/v/@authcraft/totp-js?style=flat-square)](https://www.npmjs.com/package/@authcraft/totp-js)
 [![Build](https://img.shields.io/github/actions/workflow/status/Pratiyush/totp-js/ci.yml?style=flat-square)](https://github.com/Pratiyush/totp-js/actions)
 [![Coverage](https://img.shields.io/codecov/c/github/Pratiyush/totp-js?style=flat-square)](https://codecov.io/gh/Pratiyush/totp-js)
-[![npm downloads](https://img.shields.io/npm/dm/totp-js?style=flat-square)](https://www.npmjs.com/package/totp-js)
+[![npm downloads](https://img.shields.io/npm/dm/@authcraft/totp-js?style=flat-square)](https://www.npmjs.com/package/@authcraft/totp-js)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
 
 RFC 6238 (TOTP) and RFC 4226 (HOTP) compliant. Zero runtime dependencies.
 Built-in replay protection. Constant-time verification. Works with Node.js 18+.
 
-[Documentation](https://pratiyush.github.io/totp-js/) | [npm](https://www.npmjs.com/package/totp-js) | [API Reference](#api-reference)
+[Documentation](https://pratiyush.github.io/totp-js/) | [npm](https://www.npmjs.com/package/@authcraft/totp-js) | [API Reference](#api-reference)
 
 </div>
 
@@ -37,19 +37,19 @@ totp-js is the TypeScript counterpart to [totp-impl](https://github.com/Pratiyus
 
 ```bash
 # npm
-npm install totp-js
+npm install @authcraft/totp-js
 
 # yarn
-yarn add totp-js
+yarn add @authcraft/totp-js
 
 # pnpm
-pnpm add totp-js
+pnpm add @authcraft/totp-js
 ```
 
 ## Quick Start
 
 ```typescript
-import { TOTP, generateSecret } from 'totp-js';
+import { TOTP, generateSecret } from '@authcraft/totp-js';
 
 // Generate a secret for the user
 const secret = generateSecret();
@@ -71,7 +71,7 @@ console.log(isValid); // true
 Prevent the same OTP from being used twice within its validity window:
 
 ```typescript
-import { TOTP, generateSecret, InMemoryReplayGuard } from 'totp-js';
+import { TOTP, generateSecret, InMemoryReplayGuard } from '@authcraft/totp-js';
 
 const guard = InMemoryReplayGuard.withDefaultRetention();
 const totp = TOTP.create({ replayGuard: guard });
@@ -94,7 +94,7 @@ guard.destroy();
 Generate `otpauth://` URIs for QR code scanning with Google Authenticator, Authy, etc.:
 
 ```typescript
-import { buildOtpauthUri, generateSecret } from 'totp-js';
+import { buildOtpauthUri, generateSecret } from '@authcraft/totp-js';
 
 const secret = generateSecret();
 const uri = buildOtpauthUri(secret, 'user@example.com', 'MyApp');
@@ -106,7 +106,7 @@ const uri = buildOtpauthUri(secret, 'user@example.com', 'MyApp');
 ### Preset Configurations
 
 ```typescript
-import { TOTP, defaultConfig, sha256Config, highSecurityConfig } from 'totp-js';
+import { TOTP, defaultConfig, sha256Config, highSecurityConfig } from '@authcraft/totp-js';
 
 // Default: SHA1, 6 digits, 30s period, drift ±1
 const standard = TOTP.create({ ...defaultConfig() });
@@ -121,7 +121,7 @@ const highSec = TOTP.create({ ...highSecurityConfig() });
 ### Custom Configuration
 
 ```typescript
-import { TOTP, Algorithm } from 'totp-js';
+import { TOTP, Algorithm } from '@authcraft/totp-js';
 
 const totp = TOTP.create({
   algorithm: Algorithm.SHA256,
@@ -157,7 +157,7 @@ console.log(result);
 
 ```typescript
 import express from 'express';
-import { TOTP, generateSecret, InMemoryReplayGuard, buildOtpauthUri } from 'totp-js';
+import { TOTP, generateSecret, InMemoryReplayGuard, buildOtpauthUri } from '@authcraft/totp-js';
 
 const app = express();
 app.use(express.json());
@@ -186,7 +186,7 @@ app.post('/2fa/verify', (req, res) => {
 ```typescript
 // app/api/2fa/verify/route.ts
 import { NextResponse } from 'next/server';
-import { TOTP, InMemoryReplayGuard } from 'totp-js';
+import { TOTP, InMemoryReplayGuard } from '@authcraft/totp-js';
 
 const guard = InMemoryReplayGuard.withDefaultRetention();
 const totp = TOTP.create({ replayGuard: guard });
@@ -202,7 +202,7 @@ export async function POST(request: Request) {
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { TOTP, generateSecret, InMemoryReplayGuard, buildOtpauthUri } from 'totp-js';
+import { TOTP, generateSecret, InMemoryReplayGuard, buildOtpauthUri } from '@authcraft/totp-js';
 
 @Injectable()
 export class TwoFactorService {
@@ -230,7 +230,7 @@ export class TwoFactorService {
 
 ```typescript
 import Fastify from 'fastify';
-import { TOTP, generateSecret, InMemoryReplayGuard } from 'totp-js';
+import { TOTP, generateSecret, InMemoryReplayGuard } from '@authcraft/totp-js';
 
 const app = Fastify();
 const guard = InMemoryReplayGuard.withDefaultRetention();
@@ -246,7 +246,7 @@ app.post('/2fa/verify', async (request, reply) => {
 ## Secret Generation
 
 ```typescript
-import { generateSecret, generateRawSecret, isValidSecret, Algorithm } from 'totp-js';
+import { generateSecret, generateRawSecret, isValidSecret, Algorithm } from '@authcraft/totp-js';
 
 // Default (SHA1, 20 bytes)
 const secret = generateSecret();
@@ -316,7 +316,7 @@ npm test
 ## Links
 
 - [Documentation](https://pratiyush.github.io/totp-js/) — GitHub Pages with interactive demo
-- [npm](https://www.npmjs.com/package/totp-js) — `npm install totp-js`
+- [npm](https://www.npmjs.com/package/@authcraft/totp-js) — `npm install @authcraft/totp-js`
 - [GitHub](https://github.com/Pratiyush/totp-js) — Source code, issues, PRs
 - [totp-impl](https://github.com/Pratiyush/totp-impl) — Java counterpart ([Maven Central](https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib))
 

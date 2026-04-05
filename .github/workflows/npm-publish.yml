@@ -75,7 +75,7 @@ jobs:
             ## Install
 
             ```bash
-            npm install totp-js@${{ steps.version.outputs.VERSION }}
+            npm install @authcraft/totp-js@${{ steps.version.outputs.VERSION }}
             ```
 
             See [CHANGELOG.md](CHANGELOG.md) for details.
