@@ -313,9 +313,12 @@ npm run build
 npm test
 ```
 
-## Related
+## Links
 
-- [totp-impl](https://github.com/Pratiyush/totp-impl) — Java counterpart (Maven Central: `io.github.pratiyush:totp-lib`)
+- [Documentation](https://pratiyush.github.io/totp-js/) — GitHub Pages with interactive demo
+- [npm](https://www.npmjs.com/package/totp-js) — `npm install totp-js`
+- [GitHub](https://github.com/Pratiyush/totp-js) — Source code, issues, PRs
+- [totp-impl](https://github.com/Pratiyush/totp-impl) — Java counterpart ([Maven Central](https://central.sonatype.com/artifact/io.github.pratiyush/totp-lib))
 
 ## Contributing
 
