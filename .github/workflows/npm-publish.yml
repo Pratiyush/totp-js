@@ -1,34 +1,25 @@
-name: Publish to npm
+name: Release & Publish
 
 on:
-  push:
-    tags: ['v*']
+  pull_request:
+    branches: [master]
+    types: [closed]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run test:coverage
-      - run: npm run build
-
-  publish-npm:
-    needs: build
+  release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v6
         with:
@@ -38,46 +29,48 @@ jobs:
 
       - run: npm install -g npm@latest
       - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:coverage
       - run: npm run build
 
-      - name: Extract version from tag
+      - name: Calculate next version
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Set package version
         run: |
           CURRENT=$(node -p "require('./package.json').version")
-          TARGET="${{ steps.version.outputs.VERSION }}"
-          if [ "$CURRENT" != "$TARGET" ]; then
-            npm version "$TARGET" --no-git-tag-version
-          else
-            echo "Version already at $TARGET"
-          fi
+          MAJOR=$(echo $CURRENT | cut -d. -f1)
+          MINOR=$(echo $CURRENT | cut -d. -f2)
+          PATCH=$(echo $CURRENT | cut -d. -f3)
+          NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          echo "CURRENT=${CURRENT}" >> $GITHUB_OUTPUT
+          echo "NEXT=${NEXT}" >> $GITHUB_OUTPUT
+          echo "Bumping ${CURRENT} → ${NEXT}"
 
-      - name: Publish to npm
-        run: npm publish --provenance --access public
-        # No NODE_AUTH_TOKEN — uses OIDC Trusted Publishing
+      - name: Bump version
+        run: npm version ${{ steps.version.outputs.NEXT }} --no-git-tag-version
 
-      - name: Push version bump to master
+      - name: Commit version bump and create tag
         run: |
           git config user.name "Pratiyush"
           git config user.email "pratiyush1@gmail.com"
           git add package.json package-lock.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.VERSION }}" || true
-          git push origin HEAD:master || true
+          git commit -m "chore: release v${{ steps.version.outputs.NEXT }}"
+          git tag "v${{ steps.version.outputs.NEXT }}"
+          git push origin master --tags
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: v${{ steps.version.outputs.VERSION }}
-          name: v${{ steps.version.outputs.VERSION }}
+          tag: v${{ steps.version.outputs.NEXT }}
+          name: v${{ steps.version.outputs.NEXT }}
+          generateReleaseNotes: true
           body: |
             ## Install
 
             ```bash
-            npm install @authcraft/totp-js@${{ steps.version.outputs.VERSION }}
+            npm install @authcraft/totp-js@${{ steps.version.outputs.NEXT }}
             ```
-
-            See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: false
-          prerelease: ${{ startsWith(steps.version.outputs.VERSION, '0.') }}
+          prerelease: ${{ startsWith(steps.version.outputs.NEXT, '0.') }}
