@@ -10,6 +10,19 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./qr": {
+      "types": "./dist/qr.d.ts",
+      "import": "./dist/qr.mjs",
+      "require": "./dist/qr.js"
+    }
+  },
+  "peerDependencies": {
+    "qrcode": "^1.5.0"
+  },
+  "peerDependenciesMeta": {
+    "qrcode": {
+      "optional": true
     }
   },
   "files": [
@@ -56,10 +69,12 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.2",
+    "@types/qrcode": "^1.5.6",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "@vitest/coverage-v8": "^4.1.2",
     "eslint": "^9.0.0",
+    "qrcode": "^1.5.4",
     "tsup": "^8.0.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
